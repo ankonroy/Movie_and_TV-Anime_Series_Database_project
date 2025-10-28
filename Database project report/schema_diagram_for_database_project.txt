@@ -1,0 +1,127 @@
+// Movie & TV Database Schema
+// Generated from PHP MovieTVDB Project
+// Paste this code at dbdiagram.io
+
+Table genres {
+  genre_id int [pk, increment]
+  genre_name varchar(50) [not null, unique]
+  description text
+}
+
+Table directors {
+  director_id int [pk, increment]
+  first_name varchar(50) [not null]
+  last_name varchar(50) [not null]
+  nationality varchar(50)
+  birth_date date
+  indexes {
+    (first_name, last_name) [unique]
+  }
+}
+
+Table actors {
+  actor_id int [pk, increment]
+  first_name varchar(50) [not null]
+  last_name varchar(50) [not null]
+  gender enum('Male', 'Female', 'Other')
+  birth_date date
+  nationality varchar(50)
+}
+
+Table movies {
+  movie_id int [pk, increment]
+  title varchar(200) [not null]
+  release_year year
+  duration_minutes int
+  rating decimal(3,1)
+  budget decimal(15,2)
+  director_id int
+  genre_id int
+}
+
+Table tv_series {
+  series_id int [pk, increment]
+  title varchar(200) [not null]
+  start_year year
+  end_year year
+  seasons int [default: 1]
+  rating decimal(3,1)
+  director_id int
+  genre_id int
+}
+
+Table anime_series {
+  anime_id int [pk, increment]
+  title varchar(200) [not null]
+  original_title varchar(200)
+  release_year year
+  episodes int
+  rating decimal(3,1)
+  studio varchar(100)
+  genre_id int
+}
+
+Table movie_actors {
+  movie_id int [pk]
+  actor_id int [pk]
+  role_name varchar(100)
+  is_lead_role boolean [default: false]
+}
+
+Table tv_episodes {
+  episode_id int [pk, increment]
+  series_id int
+  season_number int [not null]
+  episode_number int [not null]
+  title varchar(200) [not null]
+  duration_minutes int
+  air_date date
+  rating decimal(3,1)
+  indexes {
+    (series_id, season_number, episode_number) [unique]
+  }
+}
+
+Table anime_episodes {
+  episode_id int [pk, increment]
+  anime_id int
+  episode_number int [not null]
+  title varchar(200) [not null]
+  duration_minutes int
+  air_date date
+  rating decimal(3,1)
+  indexes {
+    (anime_id, episode_number) [unique]
+  }
+}
+
+Table reviews {
+  review_id int [pk, increment]
+  movie_id int [null]
+  tv_series_id int [null]
+  anime_id int [null]
+  reviewer_name varchar(100)
+  rating int
+  review_text text
+  review_date timestamp [default: `CURRENT_TIMESTAMP`]
+}
+
+// Relationships
+Ref: movies.director_id > directors.director_id [delete: set null]
+Ref: movies.genre_id > genres.genre_id [delete: set null]
+
+Ref: tv_series.director_id > directors.director_id [delete: set null]
+Ref: tv_series.genre_id > genres.genre_id [delete: set null]
+
+Ref: anime_series.genre_id > genres.genre_id [delete: set null]
+
+Ref: movie_actors.movie_id > movies.movie_id [delete: cascade]
+Ref: movie_actors.actor_id > actors.actor_id [delete: cascade]
+
+Ref: tv_episodes.series_id > tv_series.series_id [delete: cascade]
+
+Ref: anime_episodes.anime_id > anime_series.anime_id [delete: cascade]
+
+Ref: reviews.movie_id > movies.movie_id [delete: cascade]
+Ref: reviews.tv_series_id > tv_series.series_id [delete: cascade]
+Ref: reviews.anime_id > anime_series.anime_id [delete: cascade]
